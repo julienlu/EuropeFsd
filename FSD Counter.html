@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accidents That Could Have Been Avoided If Europe Wasn't So Slow to Authorize FSD</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e);
+            color: #fff;
+            text-align: center;
+            margin: 0;
+            padding: 20px 0;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 3.2rem;
+            margin-bottom: 15px;
+            color: #ff3366;
+            line-height: 1.2;
+        }
+        .subtitle {
+            font-size: 1.6rem;
+            margin-bottom: 60px;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+        .counters {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 35px;
+        }
+        .counter-box {
+            background: rgba(255, 255, 255, 0.09);
+            backdrop-filter: blur(12px);
+            border-radius: 26px;
+            padding: 45px 35px;
+            width: 340px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .label {
+            font-size: 1.45rem;
+            display: block;
+            margin-bottom: 18px;
+            opacity: 0.95;
+        }
+        .number {
+            font-size: 5.8rem;
+            font-weight: bold;
+            letter-spacing: 4px;
+        }
+        #fatal { color: #ff3366; }
+        #fatal-avoid { color: #ff5555; }
+        #nonfatal { color: #44ccff; }
+        #nonfatal-avoid { color: #ffaa33; }
+
+        .note {
+            margin-top: 90px;
+            font-size: 1.2rem;
+            opacity: 0.88;
+            line-height: 1.8;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .impact {
+            margin-top: 50px;
+            font-size: 1.8rem;
+            color: #ff3366;
+            font-weight: bold;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Accidents That Could Have Been Avoided<br>If Europe Wasn't So Slow to Authorize FSD</h1>
+        <p class="subtitle">Real-time counter – Europe 2025 · Updated every minute</p>
+
+        <div class="counters">
+            <div class="counter-box">
+                <div class="label">Fatal accidents<br>that occurred this year</div>
+                <div class="number" id="fatal">0</div>
+            </div>
+
+            <div class="counter-box">
+                <div class="label">Fatal accidents<br>that could have been avoided<br>with Tesla FSD (90% reduction)</div>
+                <div class="number" id="fatal-avoid">0</div>
+            </div>
+
+            <div class="counter-box">
+                <div class="label">Non-fatal accidents<br>that occurred this year</div>
+                <div class="number" id="nonfatal">0</div>
+            </div>
+
+            <div class="counter-box">
+                <div class="label">Non-fatal accidents<br>that could have been avoided<br>with Tesla FSD (90% reduction)</div>
+                <div class="number" id="nonfatal-avoid">0</div>
+            </div>
+        </div>
+
+        <div class="note">
+            Sources: European Commission, ETSC, Eurostat 2024–2025, Tesla Safety Reports Q2/Q3 2025.<br><br>
+            • ~19 000 fatal accidents per year in the EU-27<br>
+            • ~981 000 non-fatal injury accidents per year<br>
+            • Tesla FSD (Supervised): 10× fewer accidents than average → ~90 % preventable<br><br>
+        </div>
+
+        <div class="impact">
+            If Europe had approved Full Self-Driving when the data already proved it was ready:<br><br>
+            <span style="color:#ff5555;">Over 17 100 lives would still be here in 2025</span><br>
+            <span style="color:#ffaa33;">Over 882 900 injury accidents would never have happened</span><br><br>
+            Every minute of delay costs lives.
+        </div>
+    </div>
+
+    <script>
+        // 2025 Data (EU-27)
+        const annualFatal           = 19000;
+        const annualFatalAvoidable  = annualFatal * 0.9;
+        const annualNonFatal        = 981000;
+        const annualNonFatalAvoidable = annualNonFatal * 0.9;
+
+        const secondsInYear = 365.25 * 24 * 3600; // 31 557 600 seconds
+
+        const rateFatalSec          = annualFatal / secondsInYear;
+        const rateFatalAvoidSec     = annualFatalAvoidable / secondsInYear;
+        const rateNonFatalSec       = annualNonFatal / secondsInYear;
+        const rateNonFatalAvoidSec  = annualNonFatalAvoidable / secondsInYear;
+
+        // Fractional accumulators
+        let fracFatal = 0, fracFatalAvoid = 0, fracNonFatal = 0, fracNonFatalAvoid = 0;
+        let displayedFatal = 0, displayedFatalAvoid = 0, displayedNonFatal = 0, displayedNonFatalAvoid = 0;
+
+        const elFatal         = document.getElementById('fatal');
+        const elFatalAvoid    = document.getElementById('fatal-avoid');
+        = document.getElementById('nonfatal');
+        const elNonFatalAvoid = document.getElementById('nonfatal-avoid');
+
+        function update() {
+            fracFatal         += rateFatalSec         * 60;
+            fracFatalAvoid    += rateFatalAvoidSec    * 60;
+            fracNonFatal      += rateNonFatalSec      * 60;
+            fracNonFatalAvoid += rateNonFatalAvoidSec * 60;
+
+            while (fracFatal         >= 1) { displayedFatal++;         fracFatal -= 1; }
+            while (fracFatalAvoid    >= 1) { displayedFatalAvoid++;    fracFatalAvoid -= 1; }
+            while (fracNonFatal      >= 1) { displayedNonFatal++;      fracNonFatal -= 1; }
+            while (fracNonFatalAvoid >= 1) { displayedNonFatalAvoid++; fracNonFatalAvoid -= 1; }
+
+            elFatal.textContent = displayedFatal.toLocaleString('en-US');
+            elFatalAvoid.textContent    = displayedFatalAvoid.toLocaleString('en-US');
+            elNonFatal.textContent      = displayedNonFatal.toLocaleString('en-US');
+            elNonFatalAvoid.textContent = displayedNonFatalAvoid.toLocaleString('en-US');
+        }
+
+        // Start value on November 18, 2025
+        const start2025 = new Date(2025, 0, 1); // Jan 1 2025 00:00
+        const now = new Date();
+        const elapsedSec = (now - start2025) / 1000;
+
+        if (elapsedSec > 0) {
+            displayedFatal         = Math.floor(rateFatalSec         * elapsedSec);
+            displayedFatalAvoid    = Math.floor(rateFatalAvoidSec    * elapsedSec);
+            displayedNonFatal      = Math.floor(rateNonFatalSec      * elapsedSec);
+            displayedNonFatalAvoid = Math.floor(rateNonFatalAvoidSec * elapsedSec);
+
+            fracFatal         = (rateFatalSec         * elapsedSec) - displayedFatal;
+            fracFatalAvoid    = (rateFatalAvoidSec    * elapsedSec) - displayedFatalAvoid;
+            fracNonFatal      = (rateNonFatalSec      * elapsedSec) - displayedNonFatal;
+            fracNonFatalAvoid = (rateNonFatalAvoidSec * elapsedSec) - displayedNonFatalAvoid;
+        }
+
+        // Initial display
+        elFatal.textContent         = displayedFatal.toLocaleString('en-US');
+        elFatalAvoid.textContent    = displayedFatalAvoid.toLocaleString('en-US');
+        elNonFatal.textContent      = displayedNonFatal.toLocaleString('en-US');
+        elNonFatalAvoid.textContent = displayedNonFatalAvoid.toLocaleString('en-US');
+
+        // Update every minute
+        setInterval(update, 60000);
+        update();
+    </script>
+</body>
+</html>
