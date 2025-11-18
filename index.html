@@ -142,7 +142,7 @@
 
         const elFatal         = document.getElementById('fatal');
         const elFatalAvoid    = document.getElementById('fatal-avoid');
-        = document.getElementById('nonfatal');
+        const elNonFatal      = document.getElementById('nonfatal');
         const elNonFatalAvoid = document.getElementById('nonfatal-avoid');
 
         function update() {
@@ -156,16 +156,16 @@
             while (fracNonFatal      >= 1) { displayedNonFatal++;      fracNonFatal -= 1; }
             while (fracNonFatalAvoid >= 1) { displayedNonFatalAvoid++; fracNonFatalAvoid -= 1; }
 
-            elFatal.textContent = displayedFatal.toLocaleString('en-US');
+            elFatal.textContent         = displayedFatal.toLocaleString('en-US');
             elFatalAvoid.textContent    = displayedFatalAvoid.toLocaleString('en-US');
             elNonFatal.textContent      = displayedNonFatal.toLocaleString('en-US');
             elNonFatalAvoid.textContent = displayedNonFatalAvoid.toLocaleString('en-US');
         }
 
-        // Start value on November 18, 2025
-        const start2025 = new Date(2025, 0, 1); // Jan 1 2025 00:00
-        const now = new Date();
-        const elapsedSec = (now - start2025) / 1000;
+        // Start value on November 18, 2025 – Force UTC for perfect sync
+        const start2025 = Date.UTC(2025, 0, 1, 0, 0, 0) / 1000; // Jan 1 2025 00:00 UTC in seconds
+        const nowUTC = Date.now() / 1000; // Current time in seconds UTC
+        const elapsedSec = nowUTC - start2025;
 
         if (elapsedSec > 0) {
             displayedFatal         = Math.floor(rateFatalSec         * elapsedSec);
@@ -177,6 +177,9 @@
             fracFatalAvoid    = (rateFatalAvoidSec    * elapsedSec) - displayedFatalAvoid;
             fracNonFatal      = (rateNonFatalSec      * elapsedSec) - displayedNonFatal;
             fracNonFatalAvoid = (rateNonFatalAvoidSec * elapsedSec) - displayedNonFatalAvoid;
+
+            // Debug: Open F12 console to see initial values
+            console.log('Initial counters:', { displayedFatal, displayedFatalAvoid, displayedNonFatal, displayedNonFatalAvoid });
         }
 
         // Initial display
@@ -187,7 +190,7 @@
 
         // Update every minute
         setInterval(update, 60000);
-        update();
+        update(); // First tick immediate
     </script>
 </body>
 </html>
